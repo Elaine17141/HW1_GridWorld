@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW1 Grid Map - Reinforcement Learning</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="main-title">Generate n x n Square</h1>
+
+        <div class="input-section">
+            <label for="grid-size">Enter a number between 3 and 10: </label>
+            <input type="number" id="grid-size" min="3" max="10" value="5">
+            <button id="generate-btn">Generate Square</button>
+        </div>
+
+        <div id="setup-section">
+            <h2 id="grid-title">5 x 5 Square:</h2>
+            <p id="dynamic-status" class="instruction">請點擊標記起點 (綠色)</p>
+            <div id="grid-container" class="grid-container"></div>
+            <button id="calculate-btn" class="primary-btn">Calculate V(s)</button>
+        </div>
+
+        <div id="result-section" class="hidden">
+            <div class="matrices-wrapper">
+                <div class="matrix-box">
+                    <h3>Value Matrix</h3>
+                    <div id="value-matrix" class="grid-container result-grid"></div>
+                </div>
+                <div class="matrix-box">
+                    <h3>Policy Matrix</h3>
+                    <div id="policy-matrix" class="grid-container result-grid"></div>
+                </div>
+            </div>
+            <button id="back-btn" class="secondary-btn">Back to Edit</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

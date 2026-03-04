@@ -1,0 +1,172 @@
+:root {
+    --border-color: #000;
+    --start-bg: #166534;
+    /* Darker green */
+    --end-bg: #ff0000;
+    /* Pure red */
+    --wall-bg: #6a6a6a;
+    /* Gray */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px;
+    margin: 0;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.main-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.input-section {
+    margin-bottom: 30px;
+    font-size: 18px;
+}
+
+#grid-size {
+    font-size: 18px;
+    padding: 5px;
+    width: 80px;
+    border: 1px solid #767676;
+    border-radius: 2px;
+}
+
+button {
+    font-size: 16px;
+    padding: 5px 15px;
+    border: 1px solid #767676;
+    border-radius: 4px;
+    background: #efefef;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+button:hover {
+    background: #e5e5e5;
+}
+
+.instruction {
+    font-size: 18px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.grid-container {
+    display: grid;
+    margin-bottom: 20px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    background-color: #fff;
+}
+
+.cell.start {
+    background-color: var(--start-bg);
+    color: black;
+}
+
+.cell.end {
+    background-color: var(--end-bg);
+    color: black;
+}
+
+.cell.wall {
+    background-color: var(--wall-bg);
+    color: black;
+}
+
+/* Special display for results */
+.matrices-wrapper {
+    display: flex;
+    gap: 100px;
+    /* Space between value and policy matrix */
+    align-items: flex-start;
+}
+
+.matrix-box h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.result-grid .cell {
+    cursor: default;
+    font-size: 14px;
+    border: 1px solid #3498db;
+    /* Blue border as in image 2 */
+}
+
+.result-grid .cell.wall {
+    background-color: #808080ff;
+    /* Solid gray */
+    border: 1px solid #3498db;
+}
+
+.hidden {
+    display: none;
+}
+
+.label-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #444;
+}
+
+.y-label {
+    padding-right: 5px;
+}
+
+.x-label {
+    padding-top: 5px;
+}
+
+/* Policy Arrow Layout - 4 arrows in a grid */
+.policy-arrows {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.arrow.up {
+    grid-area: 1 / 1 / 2 / 3;
+}
+
+.arrow.down {
+    grid-area: 2 / 1 / 3 / 3;
+}
+
+.arrow.left {
+    grid-area: 1 / 1 / 3 / 2;
+}
+
+.arrow.right {
+    grid-area: 1 / 2 / 3 / 3;
+}
