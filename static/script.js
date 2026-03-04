@@ -75,28 +75,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function calculateV() {
+    // Ported from Python app.py
+    function policyEvaluation(n, start, end, walls, gamma = 0.9, threshold = 1e-4) {
+        let V = Array.from({ length: n }, () => Array(n).fill(0));
+        const actions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        const [endR, endC] = end;
+        const wallSet = new Set(walls.map(w => `${w[0]},${w[1]}`));
+
+        V[endR][endC] = 10.0;
+
+        while (true) {
+            let delta = 0;
+            let nextV = Array.from({ length: n }, () => Array(n).fill(0));
+
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    if (r === endR && c === endC) {
+                        nextV[r][c] = 10.0;
+                        continue;
+                    }
+                    if (wallSet.has(`${r},${c}`)) {
+                        nextV[r][c] = 0;
+                        continue;
+                    }
+
+                    let v = 0;
+                    for (const [dr, dc] of actions) {
+                        let nr = r + dr;
+                        let nc = c + dc;
+
+                        if (nr < 0 || nr >= n || nc < 0 || nc >= n || wallSet.has(`${nr},${nc}`)) {
+                            nr = r;
+                            nc = c;
+                        }
+
+                        let reward = (nr === endR && nc === endC) ? 10.0 : -1.0;
+                        v += 0.25 * (reward + gamma * V[nr][nc]);
+                    }
+                    nextV[r][c] = v;
+                    delta = Math.max(delta, Math.abs(nextV[r][c] - V[r][c]));
+                }
+            }
+            V = nextV;
+            if (delta < threshold) break;
+        }
+        return V;
+    }
+
+    async function handleCalculate() {
         if (!start || !end) {
             alert("Please set both Start and End points first.");
             return;
         }
 
-        try {
-            const response = await fetch('/calculate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ n, start, end, walls })
-            });
-
-            const data = await response.json();
-            if (data.values) {
-                renderResults(data.values);
-                updateStatus('計算完成！左邊為價值矩陣，右邊為最佳路徑');
-            }
-        } catch (error) {
-            console.error("Calculation failed:", error);
-            updateStatus('計算錯誤，請確認後台伺服器狀態');
-        }
+        // Domestic computation for static demo
+        const values = policyEvaluation(n, start, end, walls);
+        renderResults(values);
+        updateStatus('計算完成！左邊為價值矩陣，右邊為最佳路徑');
     }
 
     function renderResults(values) {
@@ -107,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMatrix(policyMatrix, values, 'policy');
     }
 
-    // 指令 B: 獨立的方向計算邏輯
     function getBestDirection(r, c, values, n, wallSet) {
         const neighbors = [
             { dir: '↑', r: r - 1, c: c },
@@ -121,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         neighbors.forEach(nb => {
             let nr = nb.r, nc = nb.c;
-            // 越界或撞牆則留在原地 (r, c)
             if (nr < 0 || nr >= n || nc < 0 || nc >= n || wallSet.has(`${nr},${nc}`)) {
                 nr = r;
                 nc = c;
@@ -158,13 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (wallSet.has(`${r},${c}`)) {
                     cell.classList.add('wall');
                 } else if (r === end[0] && c === end[1]) {
-                    // 終點顯示固定價值 10.00，不顯示箭頭
                     if (type === 'value') cell.textContent = '10.00';
                 } else {
                     if (type === 'value') {
                         cell.textContent = values[r][c].toFixed(2);
                     } else {
-                        // 使用獨立函式獲取方向
                         const dir = getBestDirection(r, c, values, n, wallSet);
                         const arrowDiv = document.createElement('div');
                         arrowDiv.className = 'policy-arrow-single';
@@ -188,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     generateBtn.addEventListener('click', createGrid);
-    calculateBtn.addEventListener('click', calculateV);
+    calculateBtn.addEventListener('click', handleCalculate);
     backBtn.addEventListener('click', () => {
         setupSection.classList.remove('hidden');
         resultSection.classList.add('hidden');
