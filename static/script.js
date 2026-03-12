@@ -142,16 +142,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMatrix(policyMatrix, values, 'policy');
     }
 
-    function getBestDirection(r, c, values, n, wallSet) {
+    function getBestDirections(r, c, values, n, wallSet) {
         const neighbors = [
-            { dir: '↑', r: r - 1, c: c },
-            { dir: '↓', r: r + 1, c: c },
-            { dir: '←', r: r, c: c - 1 },
-            { dir: '→', r: r, c: c + 1 }
+            { dir: '↑', cls: 'up', r: r - 1, c: c },
+            { dir: '↓', cls: 'down', r: r + 1, c: c },
+            { dir: '←', cls: 'left', r: r, c: c - 1 },
+            { dir: '→', cls: 'right', r: r, c: c + 1 }
         ];
 
         let maxVal = -Infinity;
-        let bestDir = '';
+        let bestDirs = [];
 
         neighbors.forEach(nb => {
             let nr = nb.r, nc = nb.c;
@@ -160,12 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 nc = c;
             }
             const val = values[nr][nc];
-            if (val > maxVal) {
+            const epsilon = 1e-7;
+            if (val > maxVal + epsilon) {
                 maxVal = val;
-                bestDir = nb.dir;
+                bestDirs = [nb];
+            } else if (Math.abs(val - maxVal) < epsilon) {
+                bestDirs.push(nb);
             }
         });
-        return bestDir;
+        return bestDirs;
     }
 
     function renderMatrix(container, values, type) {
@@ -196,13 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (type === 'value') {
                         cell.textContent = values[r][c].toFixed(2);
                     } else {
-                        const dir = getBestDirection(r, c, values, n, wallSet);
-                        const arrowDiv = document.createElement('div');
-                        arrowDiv.className = 'policy-arrow-single';
-                        arrowDiv.textContent = dir;
-                        arrowDiv.style.fontSize = '24px';
-                        arrowDiv.style.fontWeight = 'bold';
-                        cell.appendChild(arrowDiv);
+                        const bestDirs = getBestDirections(r, c, values, n, wallSet);
+                        const arrowsContainer = document.createElement('div');
+                        arrowsContainer.className = 'policy-arrows';
+                        
+                        bestDirs.forEach(d => {
+                            const arrowDiv = document.createElement('div');
+                            arrowDiv.className = `arrow ${d.cls}`;
+                            arrowDiv.textContent = d.dir;
+                            arrowsContainer.appendChild(arrowDiv);
+                        });
+                        cell.appendChild(arrowsContainer);
                     }
                 }
                 container.appendChild(cell);

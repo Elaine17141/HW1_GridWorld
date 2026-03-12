@@ -1,51 +1,103 @@
-# Reinforcement Learning Grid Map (HW1)
-https://elaine17141.github.io/HW1_GridWorld/
+# 🤖 Reinforcement Learning Grid Map (HW1)
 
-## 專案簡介
-本專案為一個互動式的強化學習 (Reinforcement Learning) 網格地圖模擬器。使用者可以自定義 $n \times n$ 的地圖大小，並透過直觀的 UI 介面設定起點、終點以及障礙物。系統會透過後端的 Policy Evaluation 演算法計算出每個狀態的價值 (State Value)，並視覺化顯示最佳路徑的方向。
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Framework-Flask-lightgrey.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## 功能說明
-*   **動態網格生成**：支援 3x3 到 10x10 的網格自定義。
-*   **互動式地圖設定**：
-    *   **起點 (Start)**：點擊第一格設為綠色起點。
-    *   **終點 (End)**：點擊第二格設為紅色終點。
-    *   **障礙物 (Wall)**：後續點擊設為灰色阻擋區域。
-*   **狀態價值計算**：一鍵計算全地圖的 $V(s)$ 值。
-*   **結果視覺化**：
-    *   **Value Matrix**：顯示每個格子的收斂價值（保留兩位小數）。
-    *   **Policy Matrix**：根據價值分佈，顯示指向最高價值鄰居的箭頭。
-*   **物理規則**：當 Agent 撞擊邊界或牆壁時會留在原處，並給予 Living Reward。
+> [!TIP]
+> **🚀 Live Demo**: [https://elaine17141.github.io/HW1_GridWorld/](https://elaine17141.github.io/HW1_GridWorld/)
 
-## 演算法細節
-本專案的核心計算邏輯基於 **策略評估 (Policy Evaluation)**：
-*   **策略 ($\pi$)**：採用隨機策略 (Uniform Random Policy)，每個動作（上、下、左、右）的執行機率皆為 0.25。
-*   **獎勵 (Reward)**：
-    *   移動至**終點**：獲得 **+10** 獎勵。
-    *   **一般移動/撞牆**：獲得 **-1** 獎勵 (Living Reward)。
-*   **收斂條件**：
-    *   折扣因子 $\gamma = 0.9$。
-    *   價值矩陣 $V(s)$ 透過迭代計算直到兩次迭代間的最大誤差小於 $10^{-4}$ 為止。
-*   **終點特性**：終點的價值固定為 **10.0**。
+本專案是一個基於 **強化學習 (Reinforcement Learning)** 理論開發的互動式網格地圖模擬器。使用者可自定義 $n \times n$ 的地圖配置，並即時運算 **策略評估 (Policy Evaluation)** 以視覺化狀態價值矩陣與最佳策略。
 
-## 安裝與執行教學
+---
 
-### 1. 安裝環境
-請確保已安裝 Python 3.x，並透過以下指令安裝必要套件：
+## 📑 目錄
+- [✨ 功能亮點](#-功能亮點)
+- [🧩 專案架構](#-專案架構)
+- [🧠 演算法原理](#-演算法原理)
+- [🚀 快速開始](#-快速開始)
+- [📖 使用說明](#-使用說明)
 
+---
+
+## ✨ 功能亮點
+
+- **🛠️ 高度自定義**：支援 3x3 至 10x10 的動態網格生成。
+- **🖱️ 直觀交互**：
+  - **綠色單元格**：起點 (Start State)
+  - **紅色單元格**：終點 (Terminal State)
+  - **灰色單元格**：障礙物 (Walls/Blocked States)
+- **📊 雙重矩陣視圖**：
+  - **Value Matrix**：顯示每個狀態收斂後的精確價值 $V(s)$。
+  - **Policy Matrix**：顯示最佳動作路徑（指向高價值鄰居的箭頭）。
+- **⚡ 即時運算**：前端採用非同步計算（支援 JavaScript & Flask 後端邏輯）。
+
+---
+
+## 🧩 專案架構
+
+```text
+.
+├── app.py              # Flask 後端主程式 (提供 Policy Evaluation API)
+├── templates/
+│   └── index.html      # 主頁面結構
+├── static/
+│   ├── style.css       # 現代化 UI 樣式 (Glassmorphism 風格)
+│   └── script.js       # 前端邏輯與網格渲染
+├── requirements.txt    # 專案依賴套件
+└── README.md           # 專案說明文件
+```
+
+---
+
+## 🧠 演算法原理
+
+本專案的核心基於 **Bellman Expectation Equation** 的迭代求解：
+
+### 1. 策略評估 (Policy Evaluation)
+我們假設智慧體 (Agent) 採用 **均勻隨機策略 (Uniform Random Policy)**，即 $\pi(a|s) = 0.25$。
+$$V_{k+1}(s) = \sum_{a \in A} \pi(a|s) \sum_{s', r} p(s', r | s, a) [r + \gamma V_k(s')]$$
+
+### 2. 環境參數設定
+- **折扣因子 ($\gamma$)**：$0.9$ (注重未來獎勵的程度)。
+- **獎勵函數 (Reward Function)**：
+  - 進入終點：$+10$
+  - 一般移動或撞牆：$-1$ (生存懲罰，激勵 Agent 尋找最短路徑)。
+- **收斂條件**：$\max |V_{k+1}(s) - V_k(s)| < 10^{-4}$。
+
+---
+
+## 🚀 快速開始
+
+### 環境需求
+- Python 3.8+
+- 現代瀏覽器 (Chrome, Edge, Firefox)
+
+### 步驟 1: 安裝依賴
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. 啟動伺服器
-在專案根目錄下執行：
-
+### 步驟 2: 啟動專案
 ```bash
 python app.py
 ```
 
-### 3. 開始使用
-開啟瀏覽器並訪問 `http://127.0.0.1:5000`。
-按照網頁上方的「狀態說明欄」引導即可完成實驗。
+### 步驟 3: 訪問網頁
+開啟瀏覽器前往 [http://127.0.0.1:5000](http://127.0.0.1:5000)。
 
 ---
-*Developed for DRL HW1*
+
+## 📖 使用說明
+
+1. **設定規模**：輸入地圖大小 (n) 並點擊 `Generate Grid`。
+2. **三步配置**：
+   - 第一下：設定**起點**。
+   - 第二下：設定**終點**。
+   - 第三下及後續：點擊格子以新增/刪除**牆壁**。
+3. **執行計算**：點擊 `Calculate` 獲取結果。
+4. **查看結果**：系統會自動切換至結果分頁，顯示收斂後的價值與策略。
+
+---
+> *Developed for Deep Reinforcement Learning Course (HW1)*
+

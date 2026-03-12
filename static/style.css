@@ -151,22 +151,42 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 14px;
+    font-size: 20px;
+    font-weight: bold;
     line-height: 1;
+    color: #2c3e50;
 }
 
+/* Position arrows in a cross pattern */
 .arrow.up {
     grid-area: 1 / 1 / 2 / 3;
+    align-items: flex-start;
+    padding-top: 2px;
 }
 
 .arrow.down {
     grid-area: 2 / 1 / 3 / 3;
+    align-items: flex-end;
+    padding-bottom: 2px;
 }
 
 .arrow.left {
     grid-area: 1 / 1 / 3 / 2;
+    justify-content: flex-start;
+    padding-left: 2px;
 }
 
 .arrow.right {
     grid-area: 1 / 2 / 3 / 3;
+    justify-content: flex-end;
+    padding-right: 2px;
+}
+
+/* If there's only one arrow, center it perfectly and make it larger */
+.policy-arrows:has(.arrow:only-child) .arrow {
+    grid-area: 1 / 1 / 3 / 3 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 28px;
+    padding: 0;
 }
