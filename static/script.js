@@ -78,12 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ported from Python app.py
     function policyEvaluation(n, start, end, walls, gamma = 0.9, threshold = 1e-4) {
         let V = Array.from({ length: n }, () => Array(n).fill(0));
+        let policy = Array.from({ length: n }, () => Array(n).fill(0));
         const actions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
         const [endR, endC] = end;
         const wallSet = new Set(walls.map(w => `${w[0]},${w[1]}`));
 
+        // 1. 初始化固定的隨機策略 (每個格子指定一個動作)
+        for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+                if (r === endR && c === endC) continue;
+                if (wallSet.has(`${r},${c}`)) continue;
+                policy[r][c] = Math.floor(Math.random() * 4); // 0:↑, 1:↓, 2:←, 3:→
+            }
+        }
+
         V[endR][endC] = 10.0;
 
+        // 2. 針對該策略進行 Policy Evaluation
         while (true) {
             let delta = 0;
             let nextV = Array.from({ length: n }, () => Array(n).fill(0));
@@ -99,7 +110,58 @@ document.addEventListener('DOMContentLoaded', () => {
                         continue;
                     }
 
-                    let v = 0;
+                    // 取出該格子固定的隨機動作
+                    const actionIdx = policy[r][c];
+                    const [dr, dc] = actions[actionIdx];
+                    let nr = r + dr;
+                    let nc = c + dc;
+
+                    if (nr < 0 || nr >= n || nc < 0 || nc >= n || wallSet.has(`${nr},${nc}`)) {
+                        nr = r;
+                        nc = c;
+                    }
+
+                    let reward = (nr === endR && nc === endC) ? 10.0 : -1.0;
+                    // 因為動作機率是 1.0，直接計算
+                    let v = reward + gamma * V[nr][nc];
+                    
+                    nextV[r][c] = v;
+                    delta = Math.max(delta, Math.abs(nextV[r][c] - V[r][c]));
+                }
+            }
+            V = nextV;
+            if (delta < threshold) break;
+        }
+        return { V, policy };
+    }
+
+    // --- HW1-3: Value Iteration ---
+    function valueIteration(n, end, walls, gamma = 0.9, threshold = 1e-4) {
+        let V = Array.from({ length: n }, () => Array(n).fill(0));
+        let policy = Array.from({ length: n }, () => Array(n).fill([]));
+        const actions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+        const [endR, endC] = end;
+        const wallSet = new Set(walls.map(w => `${w[0]},${w[1]}`));
+
+        V[endR][endC] = 10.0;
+
+        // 1. 迭代尋找最佳價值 V*
+        while (true) {
+            let delta = 0;
+            let nextV = Array.from({ length: n }, () => Array(n).fill(0));
+
+            for (let r = 0; r < n; r++) {
+                for (let c = 0; c < n; c++) {
+                    if (r === endR && c === endC) {
+                        nextV[r][c] = 10.0;
+                        continue;
+                    }
+                    if (wallSet.has(`${r},${c}`)) {
+                        nextV[r][c] = 0;
+                        continue;
+                    }
+
+                    let maxV = -Infinity;
                     for (const [dr, dc] of actions) {
                         let nr = r + dr;
                         let nc = c + dc;
@@ -110,16 +172,50 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
 
                         let reward = (nr === endR && nc === endC) ? 10.0 : -1.0;
-                        v += 0.25 * (reward + gamma * V[nr][nc]);
+                        let v = reward + gamma * V[nr][nc];
+                        if (v > maxV) maxV = v;
                     }
-                    nextV[r][c] = v;
+                    nextV[r][c] = maxV;
                     delta = Math.max(delta, Math.abs(nextV[r][c] - V[r][c]));
                 }
             }
             V = nextV;
             if (delta < threshold) break;
         }
-        return V;
+
+        // 2. 根據收斂的 V* 推導最佳策略 (Greedy Policy)
+        for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+                if (r === endR && c === endC) continue;
+                if (wallSet.has(`${r},${c}`)) continue;
+
+                let maxV = -Infinity;
+                let bestActions = [];
+                for (let i = 0; i < actions.length; i++) {
+                    const [dr, dc] = actions[i];
+                    let nr = r + dr;
+                    let nc = c + dc;
+
+                    if (nr < 0 || nr >= n || nc < 0 || nc >= n || wallSet.has(`${nr},${nc}`)) {
+                        nr = r;
+                        nc = c;
+                    }
+
+                    let reward = (nr === endR && nc === endC) ? 10.0 : -1.0;
+                    let v = reward + gamma * V[nr][nc];
+                    
+                    const epsilon = 1e-7;
+                    if (v > maxV + epsilon) {
+                        maxV = v;
+                        bestActions = [i];
+                    } else if (Math.abs(v - maxV) < epsilon) {
+                        bestActions.push(i);
+                    }
+                }
+                policy[r][c] = bestActions;
+            }
+        }
+        return { V, policy };
     }
 
     async function handleCalculate() {
@@ -128,55 +224,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Domestic computation for static demo
-        const values = policyEvaluation(n, start, end, walls);
-        renderResults(values);
-        updateStatus('計算完成！左邊為價值矩陣，右邊為最佳路徑');
+        const result = policyEvaluation(n, start, end, walls);
+        renderResults(result.V, result.policy, 'Random Policy Evaluation (HW1-2)');
+        updateStatus('計算完成！已顯示隨機策略與對應價值');
     }
 
-    function renderResults(values) {
+    function handleOptimize() {
+        const result = valueIteration(n, end, walls);
+        renderResults(result.V, result.policy, 'Optimal Policy & Value (HW1-3)');
+        updateStatus('最佳化完成！隨機動作已替換為最佳政策');
+    }
+
+    function renderResults(V, policy, title) {
         setupSection.classList.add('hidden');
         resultSection.classList.remove('hidden');
+        
+        const titleEl = document.getElementById('result-title');
+        if (titleEl) titleEl.textContent = title;
 
-        renderMatrix(valueMatrix, values, 'value');
-        renderMatrix(policyMatrix, values, 'policy');
+        renderMatrix(valueMatrix, V, policy, 'value');
+        renderMatrix(policyMatrix, V, policy, 'policy');
     }
 
-    function getBestDirections(r, c, values, n, wallSet) {
-        const neighbors = [
-            { dir: '↑', cls: 'up', r: r - 1, c: c },
-            { dir: '↓', cls: 'down', r: r + 1, c: c },
-            { dir: '←', cls: 'left', r: r, c: c - 1 },
-            { dir: '→', cls: 'right', r: r, c: c + 1 }
-        ];
-
-        let maxVal = -Infinity;
-        let bestDirs = [];
-
-        neighbors.forEach(nb => {
-            let nr = nb.r, nc = nb.c;
-            if (nr < 0 || nr >= n || nc < 0 || nc >= n || wallSet.has(`${nr},${nc}`)) {
-                nr = r;
-                nc = c;
-            }
-            const val = values[nr][nc];
-            const epsilon = 1e-7;
-            if (val > maxVal + epsilon) {
-                maxVal = val;
-                bestDirs = [nb];
-            } else if (Math.abs(val - maxVal) < epsilon) {
-                bestDirs.push(nb);
-            }
-        });
-        return bestDirs;
-    }
-
-    function renderMatrix(container, values, type) {
+    function renderMatrix(container, values, policy, type) {
         container.innerHTML = '';
         container.style.gridTemplateColumns = `30px repeat(${n}, 50px)`;
         container.style.gridTemplateRows = `repeat(${n}, 50px) 30px`;
 
         const wallSet = new Set(walls.map(w => `${w[0]},${w[1]}`));
+        const actionDirs = [
+            { dir: '↑', cls: 'up' },
+            { dir: '↓', cls: 'down' },
+            { dir: '←', cls: 'left' },
+            { dir: '→', cls: 'right' }
+        ];
 
         for (let idx = 0; idx < n; idx++) {
             const r = idx;
@@ -195,20 +276,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.classList.add('wall');
                 } else if (r === end[0] && c === end[1]) {
                     if (type === 'value') cell.textContent = '10.00';
+                    else cell.textContent = '★'; // Goal
                 } else {
                     if (type === 'value') {
                         cell.textContent = values[r][c].toFixed(2);
                     } else {
-                        const bestDirs = getBestDirections(r, c, values, n, wallSet);
+                        // 支援單一動作或多個最佳動作
+                        const actionsArray = Array.isArray(policy[r][c]) ? policy[r][c] : [policy[r][c]];
                         const arrowsContainer = document.createElement('div');
                         arrowsContainer.className = 'policy-arrows';
                         
-                        bestDirs.forEach(d => {
+                        actionsArray.forEach(actionIdx => {
+                            const d = actionDirs[actionIdx];
                             const arrowDiv = document.createElement('div');
                             arrowDiv.className = `arrow ${d.cls}`;
                             arrowDiv.textContent = d.dir;
                             arrowsContainer.appendChild(arrowDiv);
                         });
+                        
                         cell.appendChild(arrowsContainer);
                     }
                 }
@@ -227,6 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateBtn.addEventListener('click', createGrid);
     calculateBtn.addEventListener('click', handleCalculate);
+    
+    const optimizeBtn = document.getElementById('optimize-btn');
+    if (optimizeBtn) optimizeBtn.addEventListener('click', handleOptimize);
+
     backBtn.addEventListener('click', () => {
         setupSection.classList.remove('hidden');
         resultSection.classList.add('hidden');

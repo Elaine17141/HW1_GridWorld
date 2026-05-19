@@ -26,6 +26,7 @@
         </div>
 
         <div id="result-section" class="hidden">
+            <h2 id="result-title" style="text-align: center; color: #fff; margin-bottom: 10px;">Random Policy Evaluation (HW1-2)</h2>
             <div class="matrices-wrapper">
                 <div class="matrix-box">
                     <h3>Value Matrix</h3>
@@ -36,7 +37,10 @@
                     <div id="policy-matrix" class="grid-container result-grid"></div>
                 </div>
             </div>
-            <button id="back-btn" class="secondary-btn">Back to Edit</button>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button id="optimize-btn" class="primary-btn" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53);">Run Value Iteration (HW1-3)</button>
+                <button id="back-btn" class="secondary-btn">Back to Edit</button>
+            </div>
         </div>
     </div>
 
