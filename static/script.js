@@ -249,8 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (descEl) descEl.innerHTML = desc;
         
         // Badge highlights
-        document.getElementById('badge-hw1-2').classList.toggle('active', mode === 'hw1-2');
-        document.getElementById('badge-hw1-3').classList.toggle('active', mode === 'hw1-3');
+        const badge2 = document.getElementById('badge-hw1-2');
+        if (badge2) badge2.classList.toggle('active', mode === 'hw1-2');
+        
+        const badge3 = document.getElementById('badge-hw1-3');
+        if (badge3) badge3.classList.toggle('active', mode === 'hw1-3');
         
         // Hide optimize button if already optimized
         const optimizeBtn = document.getElementById('optimize-btn');
