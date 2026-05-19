@@ -224,15 +224,52 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const result = policyEvaluation(n, start, end, walls);
-        renderResults(result.V, result.policy, 'Stage 1: Random Policy Evaluation (HW1-2)', 'hw1-2', 'Currently showing a <strong>Random Policy</strong>. Arrows are generated randomly, and V(s) is evaluated strictly on this random behavior.');
-        updateStatus('計算完成！已顯示隨機策略與對應價值');
+        try {
+            updateStatus('正在請求後端 API (Policy Evaluation)...');
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ n, start, end, walls })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                renderResults(data.values, data.policy, 'Stage 1: Random Policy Evaluation (HW1-2)', 'hw1-2', 'Currently showing a <strong>Random Policy</strong>. Arrows are generated randomly, and V(s) is evaluated strictly on this random behavior.');
+                updateStatus('計算完成！已顯示後端回傳的隨機策略與對應價值');
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Error fetching calculate:', error);
+            alert("後端 API 請求失敗，請確認 Flask 伺服器正在執行。");
+        }
     }
 
-    function handleOptimize() {
-        const result = valueIteration(n, end, walls);
-        renderResults(result.V, result.policy, 'Stage 2: Optimal Policy & Value (HW1-3)', 'hw1-3', 'Currently showing the <strong>Optimal Policy</strong>. Value Iteration has converged, replacing random actions with optimal greedy actions.');
-        updateStatus('最佳化完成！隨機動作已替換為最佳政策');
+    async function handleOptimize() {
+        if (!start || !end) {
+            alert("Please set both Start and End points first.");
+            return;
+        }
+
+        try {
+            updateStatus('正在請求後端 API (Value Iteration)...');
+            const response = await fetch('/optimize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ n, start, end, walls })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                renderResults(data.values, data.policy, 'Stage 2: Optimal Policy & Value (HW1-3)', 'hw1-3', 'Currently showing the <strong>Optimal Policy</strong>. Value Iteration has converged, replacing random actions with optimal greedy actions.');
+                updateStatus('最佳化完成！隨機動作已替換為最佳政策');
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error('Error fetching optimize:', error);
+            alert("後端 API 請求失敗，請確認 Flask 伺服器正在執行。");
+        }
     }
 
     function renderResults(V, policy, title, mode, desc) {
@@ -332,8 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn.addEventListener('click', createGrid);
     calculateBtn.addEventListener('click', handleCalculate);
     
+    // 按鈕 A, B 以及結果頁的最佳化按鈕
     const optimizeBtn = document.getElementById('optimize-btn');
     if (optimizeBtn) optimizeBtn.addEventListener('click', handleOptimize);
+    
+    const setupOptimizeBtn = document.getElementById('setup-optimize-btn');
+    if (setupOptimizeBtn) setupOptimizeBtn.addEventListener('click', handleOptimize);
 
     backBtn.addEventListener('click', () => {
         setupSection.classList.remove('hidden');

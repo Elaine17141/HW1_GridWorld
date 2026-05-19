@@ -28,7 +28,11 @@
             <h2 id="grid-title">5 x 5 Square:</h2>
             <p id="dynamic-status" class="instruction">請輸入大小並標記起點 (綠色)、終點 (紅色) 與障礙物 (灰色)</p>
             <div id="grid-container" class="grid-container"></div>
-            <button id="calculate-btn" class="primary-btn">Step 1: Evaluate Random Policy (HW1-2)</button>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="calculate-btn" class="primary-btn">1. Run Random Policy Evaluation (HW1-2)</button>
+                <button id="setup-optimize-btn" class="primary-btn highlight-btn">2. Run Value Iteration (HW1-3)</button>
+            </div>
         </div>
 
         <div id="result-section" class="hidden">
