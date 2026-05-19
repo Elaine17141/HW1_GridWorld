@@ -10,7 +10,13 @@
 
 <body>
     <div class="container">
-        <h1 class="main-title">Generate n x n Square</h1>
+        <h1 class="main-title">🤖 RL Grid Map (HW1)</h1>
+        
+        <div class="hw-badges">
+            <span class="badge hw1-1">HW1-1: Grid Setup</span>
+            <span class="badge hw1-2" id="badge-hw1-2">HW1-2: Random Policy</span>
+            <span class="badge hw1-3" id="badge-hw1-3">HW1-3: Value Iteration</span>
+        </div>
 
         <div class="input-section">
             <label for="grid-size">Enter a number between 3 and 10: </label>
@@ -20,13 +26,17 @@
 
         <div id="setup-section">
             <h2 id="grid-title">5 x 5 Square:</h2>
-            <p id="dynamic-status" class="instruction">請點擊標記起點 (綠色)</p>
+            <p id="dynamic-status" class="instruction">請輸入大小並標記起點 (綠色)、終點 (紅色) 與障礙物 (灰色)</p>
             <div id="grid-container" class="grid-container"></div>
-            <button id="calculate-btn" class="primary-btn">Calculate V(s)</button>
+            <button id="calculate-btn" class="primary-btn">Step 1: Evaluate Random Policy (HW1-2)</button>
         </div>
 
         <div id="result-section" class="hidden">
-            <h2 id="result-title" style="text-align: center; color: #fff; margin-bottom: 10px;">Random Policy Evaluation (HW1-2)</h2>
+            <div style="text-align: center;">
+                <h2 id="result-title" class="status-title">Random Policy Evaluation (HW1-2)</h2>
+                <p id="result-desc" class="result-desc">Currently showing a <strong>Random Policy</strong>. The arrows are randomly generated, and V(s) is evaluated based on this random behavior.</p>
+            </div>
+            
             <div class="matrices-wrapper">
                 <div class="matrix-box">
                     <h3>Value Matrix</h3>
@@ -37,9 +47,9 @@
                     <div id="policy-matrix" class="grid-container result-grid"></div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                <button id="optimize-btn" class="primary-btn" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53);">Run Value Iteration (HW1-3)</button>
-                <button id="back-btn" class="secondary-btn">Back to Edit</button>
+            <div class="action-buttons">
+                <button id="optimize-btn" class="primary-btn highlight-btn">Step 2: Run Value Iteration (HW1-3)</button>
+                <button id="back-btn" class="secondary-btn">Back to Edit (HW1-1)</button>
             </div>
         </div>
     </div>

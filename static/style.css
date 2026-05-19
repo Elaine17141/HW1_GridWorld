@@ -21,8 +21,37 @@ body {
 .main-title {
     font-size: 32px;
     font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Homework Badges */
+.hw-badges {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
     margin-bottom: 30px;
 }
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.badge.active {
+    transform: scale(1.05);
+}
+
+.badge.hw1-1 { background-color: #e8f8f5; color: #1abc9c; border-color: #1abc9c; }
+.badge.hw1-2.active { background-color: #ebf5fb; color: #3498db; border-color: #3498db; }
+.badge.hw1-3.active { background-color: #fef5e7; color: #e67e22; border-color: #e67e22; }
+
 
 .input-section {
     margin-bottom: 30px;
@@ -39,16 +68,42 @@ body {
 
 button {
     font-size: 16px;
-    padding: 5px 15px;
-    border: 1px solid #767676;
-    border-radius: 4px;
-    background: #efefef;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #34495e;
+    color: white;
     cursor: pointer;
     margin-left: 10px;
+    transition: 0.2s;
+    font-weight: bold;
 }
 
 button:hover {
-    background: #e5e5e5;
+    background: #2c3e50;
+    transform: translateY(-1px);
+}
+
+.primary-btn {
+    background: #3498db;
+}
+.primary-btn:hover { background: #2980b9; }
+
+.highlight-btn {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    box-shadow: 0 4px 6px rgba(230, 126, 34, 0.3);
+}
+.highlight-btn:hover {
+    background: linear-gradient(135deg, #d35400, #c0392b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(230, 126, 34, 0.4);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
 }
 
 .instruction {
@@ -91,16 +146,36 @@ button:hover {
 }
 
 /* Special display for results */
+.status-title {
+    font-size: 26px;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.result-desc {
+    color: #7f8c8d;
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    line-height: 1.5;
+}
+
+body.hw1-2 .status-title { color: #3498db; }
+body.hw1-3 .status-title { color: #e67e22; }
+
 .matrices-wrapper {
     display: flex;
     gap: 100px;
     /* Space between value and policy matrix */
     align-items: flex-start;
+    justify-content: center;
 }
 
 .matrix-box h3 {
     text-align: center;
     margin-bottom: 15px;
+    font-size: 20px;
+    color: #34495e;
 }
 
 .result-grid .cell {
@@ -154,7 +229,18 @@ button:hover {
     font-size: 20px;
     font-weight: bold;
     line-height: 1;
-    color: #2c3e50;
+    transition: color 0.3s ease;
+}
+
+/* Mode-dependent arrow styling */
+body.hw1-2 .arrow {
+    color: #95a5a6; /* Muted gray for random */
+    font-weight: normal;
+}
+
+body.hw1-3 .arrow {
+    color: #e74c3c; /* Bold red for optimal */
+    text-shadow: 0 0 2px rgba(231, 76, 60, 0.3);
 }
 
 /* Position arrows in a cross pattern */

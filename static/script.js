@@ -225,22 +225,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const result = policyEvaluation(n, start, end, walls);
-        renderResults(result.V, result.policy, 'Random Policy Evaluation (HW1-2)');
+        renderResults(result.V, result.policy, 'Stage 1: Random Policy Evaluation (HW1-2)', 'hw1-2', 'Currently showing a <strong>Random Policy</strong>. Arrows are generated randomly, and V(s) is evaluated strictly on this random behavior.');
         updateStatus('計算完成！已顯示隨機策略與對應價值');
     }
 
     function handleOptimize() {
         const result = valueIteration(n, end, walls);
-        renderResults(result.V, result.policy, 'Optimal Policy & Value (HW1-3)');
+        renderResults(result.V, result.policy, 'Stage 2: Optimal Policy & Value (HW1-3)', 'hw1-3', 'Currently showing the <strong>Optimal Policy</strong>. Value Iteration has converged, replacing random actions with optimal greedy actions.');
         updateStatus('最佳化完成！隨機動作已替換為最佳政策');
     }
 
-    function renderResults(V, policy, title) {
+    function renderResults(V, policy, title, mode, desc) {
         setupSection.classList.add('hidden');
         resultSection.classList.remove('hidden');
         
+        // UI Updates for explicit homework requirements
+        document.body.className = mode; // Add mode class to body for CSS targeting
+        
         const titleEl = document.getElementById('result-title');
         if (titleEl) titleEl.textContent = title;
+        
+        const descEl = document.getElementById('result-desc');
+        if (descEl) descEl.innerHTML = desc;
+        
+        // Badge highlights
+        document.getElementById('badge-hw1-2').classList.toggle('active', mode === 'hw1-2');
+        document.getElementById('badge-hw1-3').classList.toggle('active', mode === 'hw1-3');
+        
+        // Hide optimize button if already optimized
+        const optimizeBtn = document.getElementById('optimize-btn');
+        if (optimizeBtn) {
+            optimizeBtn.style.display = mode === 'hw1-3' ? 'none' : 'inline-block';
+        }
 
         renderMatrix(valueMatrix, V, policy, 'value');
         renderMatrix(policyMatrix, V, policy, 'policy');
